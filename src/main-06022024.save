@@ -1,5 +1,5 @@
 /********************************************************************
- * TITLE: K3JSE, WA3NOA  Deviation monitor                                 *
+ * K3JSE, WA3NOA  Deviation monitor                                 *
  *                                                                  *
  * VERSION: 05-31-2024-15:26                                        *
  *  -  WA3NOA added OLED code                                       *
@@ -15,17 +15,6 @@
  * VERSION: 06-02-2024-16:16                                        *
  *  - Refined sliding window code                                   *
  *                                                                  *
- * VERSION: 06-02-2024-22:00                                        *
- *  - Removed period after Hz, typo cleanup                         *
- *                                                                  *
- * VERSION: 06032024-1300                                           *
- *  - added "dual input" feature.  If PIN9 / gpio PA07 is high or   *
- *    floating the scaling factor is set for primary (TM-V71)       *
- *    If the pin is pulld low then an alternate ADC_SCALE factor    *
- *    is used e.g. scanner                                          *
- *  - removed serial line ready check so code won't hang if serial  *
- *    port isn't active                                             *
- *                                                                  *
  ********************************************************************/
 
 #define SERIAL_DEBUG
@@ -37,34 +26,33 @@
 
 #ifdef USE_NEOPIXEL
 #include <Adafruit_NeoPixel.h>
-#define NEO_PIN NEOPIXEL_BUILTIN 
 #endif
 
 #ifdef USE_8DIGIT_DISPLAY
 #include "LedController.hpp"
-#include <SPI.h>              // SPI bus drivers
+#include <SPI.h>  // SPI bus drivers
 #endif
 
 #ifdef USE_OLED_MONO
-#include <Wire.h>             // I2C bus drivers
-#include <Adafruit_GFX.h>     // Graphics library
+#include <Wire.h> // I2C bus drivers
+#include <Adafruit_GFX.h> // Graphics library
 #include <Adafruit_SSD1306.h> // Mono OLED driver
 #endif
 
- 
+//#define NEO_PIN NEOPIXEL_BUILTIN  
 #define LED_COUNT  1
 
-#define SAMPLE_WINDOW 750     // This no longer determines the display update rate
-                              // Display update is now a function of the sample window AND
-                              // the [experimental] sliding average window code in the main loop
+#define SAMPLE_WINDOW 750 // This no longer determines the display update rate
+                          // Display update is now a functin of the sample windows AND
+                          // the [experimental] sliding average window code in the main loop
 
-#define SL_WINDOW 64          // number of sample_window values to average for display                          
+#define SL_WINDOW 64      // number of sample_window values to average for display                          
 
-#define SCREEN_WIDTH 128      // OLED display width, in pixels
-#define SCREEN_HEIGHT 64      // OLED display height, in pixels
-#define OLED_RESET     -1     // Reset pin # (or -1 if sharing Feather reset pin)
-#define SCREEN_ADDRESS 0x3C   // Current I2C address of Amazon OLED displays
-#define TEXT_HEADER_SIZE  1   // Size of heading text to display
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Feather reset pin)
+#define SCREEN_ADDRESS 0x3C // Current I2C address of Amazon OLED displays
+#define TEXT_HEADER_SIZE  1    // Size of heading text to display
 #define VALUE_TEXT_SIZE  2    // Size of deviation data value text to display
 
 #define JITTER 3
@@ -113,7 +101,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET); // Par
 /*
  * A note on variable names
  *   - Variables starting with an underscore are working variables for use inside the ADC ISR
- *   - The same variable mame without the underscore is the saved value for use outside the ISR
+ *   - The same variable mame without the underscore is the saved valuefor use outside the ISR
 */
 
 volatile uint16_t _adcResult; 
@@ -171,13 +159,13 @@ void setup() {
 
     pinMode(5,OUTPUT);         // Pin 5 / GPIO PA15 track display update
     pinMode(6,OUTPUT);         // Pin 6 / GPIO PA20 track ISR
-    pinMode (9,INPUT_PULLUP);  // Controls an option e.g. scale factor
+    pinMode (9,INPUT);         // Debug display voltage instead of deviation when pulled low
     pinMode(led, OUTPUT);
 
     #ifdef SERIAL_DEBUG
     Serial.begin(115200);      // Start the native USB port
-    //while(!Serial)
-    //  {};                    // Wait for the console to open
+    while(!Serial)
+      {};            // Wait for the console to open
     #endif
 
     #ifdef USE_OLED_MONO
@@ -192,6 +180,8 @@ void setup() {
     init_neo_pixel();
     #endif
 
+    ADC_SCALE = 4.098;    // this is th escaling factor to adjust deviation display
+                          // This value works for Andy's test setup
 
     // Initialize the sliding window buffer to "some value"
     for (int i=1;i <SL_WINDOW;i++){
@@ -223,7 +213,7 @@ void loop() {
    * The window sample period is longer and determines the display update rate.  The
    * goal is to set the diplay update 
    * 
-   * Window period related variables include
+   * WIndow period related variables include
    * 
    *   - winAccumulator     // sum of all ADC samples during the sample window
    *   - winCount           // count of all ADC samples during the sample window
@@ -273,18 +263,6 @@ void loop() {
               sl_avg += sl_buf[i];
           }
           sl_avg = sl_avg / SL_WINDOW;
-           
-          /*******************************************************************
-           *  Use Arduino PIN9 / SAMD GPIO PA07 to control deviation scaling
-           *   - pin is configued as input with pullup so it 'floats" high
-           *     High value sets ADC_SCALE for TM-V71
-           *   - jumper the pin to GND to select an alternate input source
-           *     e.g pin low value is curently configured for Andy's scanner
-          *******************************************************************/ 
-          if (PORT->Group[0].IN.reg & PORT_PA07)    // Arduino PiIN9 floating / high
-              ADC_SCALE = 4.098;                    // scale factor for Andy's TM-V71
-          else
-              ADC_SCALE = 17.65;                    // scale factor for Andy's scanner
 
           winMaxDev = sl_avg * ADC_SCALE / 4096;
           winAvgDC = (winAccumulator / winCount) * 3.3 / 4096;
@@ -625,7 +603,7 @@ void init_oled_mono(){
 
       display.setTextSize(VALUE_TEXT_SIZE); // Change font size to 2x for deviation value display
       display.setCursor(78,22);  // Position to display units (Hz.) after deviation value
-      display.print("Hz"); // Display units (Hz)
+      display.print("Hz."); // Display units (Hz.)
 
       display.setTextSize(TEXT_HEADER_SIZE);  // Set up for smaller font
       display.setCursor(44,42);  // Position to display average value header
