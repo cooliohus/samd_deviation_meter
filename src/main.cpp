@@ -1,5 +1,5 @@
 /********************************************************************
- * TITLE: K3JSE, WA3NOA  Deviation monitor                                 *
+ * TITLE: K3JSE, WA3NOA  Deviation monitor                          *
  *                                                                  *
  * VERSION: 05-31-2024-15:26                                        *
  *  -  WA3NOA added OLED code                                       *
@@ -21,7 +21,7 @@
  * VERSION: 06032024-1300                                           *
  *  - added "dual input" feature.  If PIN9 / gpio PA07 is high or   *
  *    floating the scaling factor is set for primary (TM-V71)       *
- *    If the pin is pulld low then an alternate ADC_SCALE factor    *
+ *    If the pin is pulled low then an alternate ADC_SCALE factor   *
  *    is used e.g. scanner                                          *
  *  - removed serial line ready check so code won't hang if serial  *
  *    port isn't active                                             *
