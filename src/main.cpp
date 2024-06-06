@@ -28,6 +28,9 @@
  *                                                                  *
  ********************************************************************/
 
+#include "andy.h"
+//#include "jim.h"
+
 #define SERIAL_DEBUG
 //#define USE_NEO_PIXEL
 //#define USE_8DIGIT_DISPLAY
@@ -282,9 +285,9 @@ void loop() {
            *     e.g pin low value is curently configured for Andy's scanner
           *******************************************************************/ 
           if (PORT->Group[0].IN.reg & PORT_PA07)    // Arduino PiIN9 floating / high
-              ADC_SCALE = 4.098;                    // scale factor for Andy's TM-V71
+              ADC_SCALE = ADC_HIGH;                    // scale factor for Andy's TM-V71
           else
-              ADC_SCALE = 17.65;                    // scale factor for Andy's scanner
+              ADC_SCALE = ADC_LOW;                    // scale factor for Andy's scanner
 
           winMaxDev = sl_avg * ADC_SCALE / 4096;
           winAvgDC = (winAccumulator / winCount) * 3.3 / 4096;
