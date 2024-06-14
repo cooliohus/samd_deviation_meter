@@ -1,2 +1,2 @@
-float ADC_HIGH = 3.9;
-float ADC_LOW = 11;
+float ADC_HIGH = 7.4;
+float ADC_LOW = 9.1;
