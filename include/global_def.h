@@ -5,7 +5,7 @@
 #define USE_OLED_MONO // If OLED MONO connected to I2C bus
 
 /*
- * Defin
+ * Specify ADC precision
 */
 //#define ADC_8BITS
 #define ADC_10BITS
