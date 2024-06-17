@@ -31,16 +31,13 @@
  *                                                                  *
  ********************************************************************/
 
-<<<<<<< HEAD
-//#include "andy.h"
-#include "jim.h"
-=======
+
 #include <Arduino.h>
 #include "global_def.h"
 #include "sam_adc.h"
 #include "andy.h"
 //#include "jim.h"
->>>>>>> 55fcc06 (Updated andy scale factor)
+
 
 #ifdef USE_NEO_PIXEL
 #include "neo_pixel.h"
