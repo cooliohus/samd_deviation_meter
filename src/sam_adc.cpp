@@ -83,9 +83,8 @@ void ADC_Handler() {
   */
   if (ADC->INTFLAG.bit.RESRDY) {                      // An ADC sample is available
   
-      //PORT->Group[0].OUTSET.reg = PORT_PA20;          // set Arduino PIN 6 on for monitoring (scope)
-       if (_winCount == 0)
-           PORT->Group[0].OUTSET.reg = PORT_PA20;          // set Arduino PIN 6 on for monitoring (scope)
+      if (_winCount == 0)
+          PORT->Group[0].OUTSET.reg = PORT_PA20;          // set Arduino PIN 6 on for monitoring (scope)
 
       _adcResult = ADC->RESULT.reg;                    // store the ADC result;
 
@@ -181,15 +180,15 @@ void ADC_Handler() {
           _winMin = ADC_BITS-1;
           _winMax = 0;
 
-          PORT->Group[0].OUTCLR.reg = PORT_PA20;       // clear the interupt GPIO pin 
+          PORT->Group[0].OUTCLR.reg = PORT_PA20;       // clear GPIO pin 6 (scope monitor on samle window)
           displayReady = true;                         // Signal the display routines to run
-      }
+      } // if wincount >= SAMPLE_WINDOW
     
       ADC->INTFLAG.bit.RESRDY = 1;                     // Clear the RESRDY flag, enable the next interrupt
       while(ADC->STATUS.bit.SYNCBUSY);                 // Wait for read synchronization
     
       //PORT->Group[0].OUTCLR.reg = PORT_PA20;
-      //PORT->Group[0].OUTTGL.reg = PORT_PA20;           // Toggle Arduino Pin 6 off
+      //PORT->Group[0].OUTTGL.reg = PORT_PA20;           // Toggle Arduino Pin 6
   } // ADC sample available
 }
 
