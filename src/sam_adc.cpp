@@ -96,8 +96,8 @@ void ADC_Handler() {
 
       /*
        * keep track of maximum and minimum ADC values during the sample window in _ variables
-       * When the sample count reaches yhe sample period the _ values are saved to the non _
-       * variables for main loop processing and then reset
+       * When the sample count reaches the sample period the _ values are saved to the non _
+       * variables for main loop processing and then reset.  Note that a PL Tone will skew these values.
       */    
       if (_adcResult > _adcMax)
           _adcMax = _adcResult;
@@ -142,6 +142,9 @@ void ADC_Handler() {
           _wfDif = wfMax-wfMin;
           _wfAccumulator += _wfDif;    // update the accumulated peak to peak values and counter
           _wfCount++;
+
+          // keep track of waveform min and max values during th esample window.  These values 
+          // may be used to display max versus average values
           if (_wfMax > _winMax)
               _winMax = _wfMax;
           else if (_wfMin < _winMin)
@@ -154,32 +157,35 @@ void ADC_Handler() {
        * save in process values and reset working values for the start of the
        * next sample window
       */
-      if (_winCount >= SAMPLE_WINDOW)  {    // ADC samples equal the window size
+      if (_winCount >= SAMPLE_WINDOW)  {      // ADC samples equal the window size
             
-          winAccumulator = _winAccumulator;
-          winCount = _winCount;
-          _winAccumulator = 0;
+          winAccumulator = _winAccumulator;   // sum of all ADC readings during sample window
+          winCount = _winCount;               // count of all ADC readings, use to calculate
+                                              // the average DC value
+          _winAccumulator = 0;                // clear the working values for next sample period
           _winCount = 0;
       
-          wfAccumulator = _wfAccumulator;
-          wfCount = _wfCount;
-          _wfAccumulator = 0;
+          wfAccumulator = _wfAccumulator;     // sum of waveform P2P values drinhg sample window
+          wfCount = _wfCount;                 // count of waveform P2P values, use to calculate
+                                              // the average waveform value during th esample window
+          _wfAccumulator = 0;                 // clear working values
           _wfCount = 0;
           
-          adcMax = _adcMax;
+          adcMax = _adcMax;                   // max and min ADC values during the sample window
           adcMin = _adcMin;
-          _adcMax = 0;
+          _adcMax = 0;                        // reset working values
           _adcMin = ADC_BITS-1;
 
-          winMax = _winMax;
+          winMax = _winMax;                   // I don't remember why I did this, may be rfedundant :-)
           winMin = _winMin;
           _winMin = ADC_BITS-1;
           _winMax = 0;
-          PORT->Group[0].OUTCLR.reg = PORT_PA20;
+
+          PORT->Group[0].OUTCLR.reg = PORT_PA20;       // clear the interupt GPIO pin 
           displayReady = true;                         // Signal the display routines to run
       }
     
-      ADC->INTFLAG.bit.RESRDY = 1;                     // Clear the RESRDY flag
+      ADC->INTFLAG.bit.RESRDY = 1;                     // Clear the RESRDY flag, enable the next interrupt
       while(ADC->STATUS.bit.SYNCBUSY);                 // Wait for read synchronization
     
       //PORT->Group[0].OUTCLR.reg = PORT_PA20;
@@ -235,11 +241,13 @@ void init_adc() {
     while(ADC->STATUS.bit.SYNCBUSY);                   // Wait for synchronization  
     #ifdef ADC_8BITS
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
+    while(ADC->STATUS.bit.SYNCBUSY);                   // Wait for synchronization  
     #endif
     #ifdef ADC_10BITS
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
-    #endif
     while(ADC->STATUS.bit.SYNCBUSY);                   // Wait for synchronization  
+    #endif
+    
     ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;
     while(ADC->STATUS.bit.SYNCBUSY);                   // Wait for synchronization  
     ADC->AVGCTRL.bit.SAMPLENUM = 2;                    // avrage 2 samples
