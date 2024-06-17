@@ -232,6 +232,7 @@ void init_adc() {
                      ADC_CTRLB_RESSEL_12BIT |          // Set the ADC resolution to 12 bits
                      ADC_CTRLB_FREERUN;                // Set the ADC to free run
 
+    while(ADC->STATUS.bit.SYNCBUSY);                   // Wait for synchronization  
     #ifdef ADC_8BITS
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
     #endif
