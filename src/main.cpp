@@ -54,8 +54,6 @@
 #define SL_WINDOW 64          // number of sample_window values to average for display         
 
 
-/******** F o r w a r d   f u n c t i o n   d e c l a r a t i o n s ********/
-
 #ifdef USE_8DIGIT_DISPLAY
 void udate_8digit_display();
 void init_8digit_display();
@@ -64,13 +62,7 @@ void init_8digit_display();
 #ifdef SERIAL_DEBUG
 void update_serial();
 #endif
-/**************************************************************************/  
 
-/*
- * A note on variable names
- *   - Variables starting with an underscore are working variables for use inside the ADC ISR
- *   - The same variable mame without the underscore is the saved value for use outside the ISR
-*/
 
 float  winMaxDev,   // sample window deviation
        winDC,       // deviation P2P DC voltage
@@ -115,7 +107,7 @@ void setup() {
       sl_buf[i] = 2048;
     }
 
-    init_adc();
+    init_adc();  // Initialize the ADC.  See ADC constant in global_def.h
 
 }
 

@@ -4,6 +4,12 @@
 #ifndef ADC_MODULE
 #define ADC_MODULE
 
+/*
+ * A note on variable names
+ *   - Variables starting with an underscore are working variables for use inside the ADC ISR
+ *   - The same variable mame without the underscore is the saved value for use outside the ISR
+*/
+
 void init_adc();
 
 extern uint32_t wfAccumulator;
