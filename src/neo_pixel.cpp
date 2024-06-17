@@ -10,8 +10,7 @@ void update_neo_pixel(int dev) {
     if ((dev) > 2758) {
           neo.setPixelColor(0,25,0,0);    // RED for overdeviation
           }
-      else
-      if ((dev) < 1854) {
+      else if ((dev) < 1854) {
           neo.setPixelColor(0,0,0,50);    // BLUE for underdeviation
           }
       else
