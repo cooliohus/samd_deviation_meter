@@ -29,8 +29,9 @@ extern int adcMax,
 extern int winMax,         // maximum ADC value during sample window
            winMin;         // minimum ADC value during sample window
 
+// Moved to global_def.h
 //#define ADC_8BITS
-#define ADC_10BITS
+//#define ADC_10BITS
 //#define ADC_12BITS
 
 #ifdef ADC_12BITS
