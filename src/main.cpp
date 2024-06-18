@@ -197,7 +197,7 @@ void loop() {
 
           winMaxDev = sl_avg * ADC_SCALE / ADC_BITS;
           winAvgDC = (winAccumulator / winCount) * 3.3 / ADC_BITS;
-          winDC = sl_avg * 3.3 / ADC_BITS;
+          winDC = sl_avg * Vcc / ADC_BITS;
 
           #ifdef SERIAL_DEBUG
           update_serial();
