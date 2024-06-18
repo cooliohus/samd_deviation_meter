@@ -34,6 +34,8 @@ extern int winMax,         // maximum ADC value during sample window
 //#define ADC_10BITS
 //#define ADC_12BITS
 
+#define Vcc 3.326
+
 #ifdef ADC_12BITS
  extern int ADC_BITS = 4096;      // 12 bit ADC
 #endif
