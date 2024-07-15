@@ -197,7 +197,8 @@ void loop() {
 
           winMaxDev = sl_avg * ADC_SCALE / ADC_BITS;
           winAvgDC = (winAccumulator / winCount) * 3.3 / ADC_BITS;
-          winDC = sl_avg * Vcc / ADC_BITS;
+          //winDC = sl_avg * Vcc / ADC_BITS;
+          winDC = (winMax-winMin) *  ADC_SCALE / ADC_BITS;
 
           #ifdef SERIAL_DEBUG
           update_serial();
@@ -208,6 +209,7 @@ void loop() {
           #endif
 
           #ifdef USE_OLED_MONO 
+          //update_oled_mono(winMaxDev,winAvgDC);
           update_oled_mono(winMaxDev,winAvgDC);
           #endif
        
